@@ -249,16 +249,20 @@ function App() {
           <h1>{env.eventName}</h1>
           <p className="hero-text">{env.eventTagline}</p>
           <p className="hero-subtext">
-            Share the main page with attendees, then use <code>{ADMIN_ROUTE}</code> for the
-            password-gated host console during the live giveaway.
+            {isAdminRoute
+              ? `Use ${ADMIN_ROUTE} for the password-gated host console during the live giveaway.`
+              : 'Sign up below for a chance to win GitHub Copilot Dev Days prizes and swag.'}
           </p>
           <div className="nav-actions">
-            <a className="primary-link" href={PUBLIC_ROUTE}>
-              Enter giveaway
-            </a>
-            <a className="secondary-link" href={ADMIN_ROUTE}>
-              Open host console
-            </a>
+            {isAdminRoute ? (
+              <a className="secondary-link" href={PUBLIC_ROUTE}>
+                Back to entry page
+              </a>
+            ) : (
+              <a className="primary-link" href="#entry">
+                Enter giveaway
+              </a>
+            )}
           </div>
         </div>
         <div className="hero-card">
@@ -281,7 +285,7 @@ function App() {
       )}
 
       <section className="content-grid">
-        <article className="panel">
+        <article className="panel" id="entry">
           <header className="panel-header">
             <div>
               <span className="eyebrow">{isAdminRoute ? 'Host console' : 'Attendee entry'}</span>
