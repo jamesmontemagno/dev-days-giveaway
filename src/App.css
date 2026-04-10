@@ -171,6 +171,10 @@
   align-items: start;
 }
 
+.rules-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .panel,
 .entry-form,
 .admin-panel,
@@ -361,6 +365,31 @@
   color: var(--text-soft);
 }
 
+.rules-content {
+  text-align: left;
+}
+
+.rules-content p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.rules-content h3 {
+  margin: 6px 0 0;
+  color: var(--text-h);
+  font-size: 1rem;
+}
+
+.rules-checklist {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
 .site-footer {
   display: flex;
   flex-wrap: wrap;
@@ -371,13 +400,20 @@
   color: var(--text-soft);
 }
 
-.repo-link {
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-link {
   color: var(--text-h);
   font-weight: 700;
   text-decoration: none;
 }
 
-.repo-link:hover {
+.footer-link:hover {
   text-decoration: underline;
 }
 

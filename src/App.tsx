@@ -50,6 +50,7 @@ type AdminEntryOption = {
 
 const PUBLIC_ROUTE = '#/'
 const ADMIN_ROUTE = '#/admin'
+const RULES_ROUTE = '#/rules'
 const ADMIN_STORAGE_KEY = 'raffle-admin-unlocked'
 const THEME_STORAGE_KEY = 'raffle-theme'
 const initialSummary: DashboardSummary = {
@@ -73,7 +74,17 @@ const initialForm: EntryFormValues = {
   email: '',
 }
 
-const normalizeHashRoute = () => (window.location.hash === ADMIN_ROUTE ? ADMIN_ROUTE : PUBLIC_ROUTE)
+const normalizeHashRoute = () => {
+  if (window.location.hash === ADMIN_ROUTE) {
+    return ADMIN_ROUTE
+  }
+
+  if (window.location.hash === RULES_ROUTE) {
+    return RULES_ROUTE
+  }
+
+  return PUBLIC_ROUTE
+}
 
 const buildAnimationSequence = (winnerName: string) => {
   const sequence = Array.from({ length: 18 }, (_, index) => rouletteFillers[index % rouletteFillers.length])
@@ -134,6 +145,7 @@ function App() {
   const [isRemovingEntry, setIsRemovingEntry] = useState(false)
 
   const isAdminRoute = route === ADMIN_ROUTE
+  const isRulesRoute = route === RULES_ROUTE
   const isLocalDevCsvMode = isLocalFileMode && import.meta.env.DEV
   const submitDisabled = (!isSupabaseConfigured && !isLocalFileMode) || isSubmitting
   const adminLocked = !isLocalDevCsvMode && !adminReady
@@ -548,6 +560,8 @@ function App() {
               ? isLocalDevCsvMode
                 ? `Use ${ADMIN_ROUTE} for host controls in local CSV mode (no password needed on localhost).`
                 : `Use ${ADMIN_ROUTE} for the password-gated host console during the live giveaway.`
+              : isRulesRoute
+              ? 'Review the official giveaway rules before entering. By participating, attendees agree to these rules and applicable local requirements.'
               : 'Sign up below for a chance to win GitHub Copilot Dev Days prizes and swag.'}
           </p>
           <div className="nav-actions">
@@ -555,9 +569,18 @@ function App() {
               <a className="secondary-link" href={PUBLIC_ROUTE}>
                 Back to entry page
               </a>
+            ) : isRulesRoute ? (
+              <a className="primary-link" href={PUBLIC_ROUTE}>
+                Back to giveaway
+              </a>
             ) : (
               <a className="primary-link" href="#entry">
                 Enter giveaway
+              </a>
+            )}
+            {!isAdminRoute && !isRulesRoute && (
+              <a className="secondary-link" href={RULES_ROUTE}>
+                View official rules
               </a>
             )}
             <button className="secondary-button theme-toggle" type="button" onClick={toggleTheme}>
@@ -592,204 +615,277 @@ function App() {
         </section>
       )}
 
-      <section className="content-grid">
-        <article className="panel" id="entry">
-          <header className="panel-header">
-            <div>
-              <span className="eyebrow">{isAdminRoute ? 'Host console' : 'Attendee entry'}</span>
-              <h2>{isAdminRoute ? 'Run the Dev Days draw' : 'Join the giveaway'}</h2>
+      {isRulesRoute ? (
+        <section className="content-grid rules-grid">
+          <article className="panel rules-panel">
+            <header className="panel-header">
+              <div>
+                <span className="eyebrow">Official rules</span>
+                <h2>{env.eventName} rules</h2>
+              </div>
+            </header>
+            <div className="rules-content">
+              <p>
+                These rules are a starter template for giveaway hosts. Update them with your event details, required disclosures,
+                and local legal requirements before publishing.
+              </p>
+              <h3>1. Eligibility</h3>
+              <p>
+                Entry is limited to attendees who meet your stated eligibility requirements, including any age, residency,
+                employment, or participation restrictions.
+              </p>
+              <h3>2. Entry period</h3>
+              <p>
+                Define the giveaway start and end date/time, including timezone. Entries submitted outside that period are not
+                eligible.
+              </p>
+              <h3>3. Prizes and odds</h3>
+              <p>
+                List prizes and approximate retail value where required. Odds depend on the total number of eligible entries
+                received.
+              </p>
+              <h3>4. Winner selection and contact</h3>
+              <p>
+                Winners are selected at random from eligible entries. State how and when winners are contacted, response
+                deadlines, and any alternate winner process.
+              </p>
+              <h3>5. Privacy and data use</h3>
+              <p>
+                Explain how entrant data is used, stored, and retained. Include links to your privacy notice and any required
+                consent disclosures.
+              </p>
+              <h3>6. Compliance notice</h3>
+              <p>
+                No purchase necessary unless your local law requires otherwise. Void where prohibited. Organizers are
+                responsible for complying with local laws, venue policies, company policies, and any sponsor requirements.
+              </p>
             </div>
-          </header>
+          </article>
 
-          {!isAdminRoute ? (
-            <form className="entry-form" onSubmit={handleSubmit}>
-              {isLocalFileMode && (
-                <p className="form-message idle">
-                  Local CSV mode is active. New attendees are added in memory and synced to disk during local dev.
-                </p>
-              )}
-              <label>
-                Full name
-                <input
-                  type="text"
-                  value={formValues.name}
-                  onChange={(event) => updateFormValue('name', event.target.value)}
-                  placeholder="Ada Lovelace"
-                  required
-                />
-              </label>
-              <label>
-                Team or company
-                <input
-                  type="text"
-                  value={formValues.organization}
-                  onChange={(event) => updateFormValue('organization', event.target.value)}
-                  placeholder="Optional"
-                />
-              </label>
-              <label>
-                Work email
-                <input
-                  type="email"
-                  value={formValues.email}
-                  onChange={(event) => updateFormValue('email', event.target.value)}
-                  placeholder="Optional"
-                />
-              </label>
-              <button className="primary-button" type="submit" disabled={submitDisabled}>
-                {isSubmitting ? 'Submitting...' : isLocalFileMode ? 'Add attendee locally' : 'Join Dev Days'}
-              </button>
-              <p className={`form-message ${submitState.type}`}>{submitState.message}</p>
-            </form>
-          ) : adminLocked ? (
-            <form className="entry-form" onSubmit={handleUnlock}>
-              <label>
-                Admin password
-                <input
-                  type="password"
-                  value={adminPassword}
-                  onChange={(event) => setAdminPassword(event.target.value)}
-                  placeholder="Enter host password"
-                  required={!isLocalDevCsvMode}
-                />
-              </label>
-              <button className="primary-button" type="submit">
-                Unlock console
-              </button>
-              <p className={`form-message ${adminGateState.type}`}>{adminGateState.message}</p>
-              <p className="muted-copy">{unlockHint}</p>
-            </form>
-          ) : (
-            <div className="admin-panel">
-              <div className="stat-grid">
-                <div className="stat-card">
-                  <span className="stat-label">Entries</span>
-                  <strong>{summary.totalEntries}</strong>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Eligible</span>
-                  <strong>{summary.eligibleCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Winners</span>
-                  <strong>{summary.winnersCount}</strong>
-                </div>
+          <aside className="panel rules-panel">
+            <header className="panel-header">
+              <div>
+                <span className="eyebrow">Host checklist</span>
+                <h2>Before you launch</h2>
               </div>
-
-              <label className="prize-field">
-                Prize or swag drop
-                <input
-                  type="text"
-                  value={prizeLabel}
-                  onChange={(event) => setPrizeLabel(event.target.value)}
-                  placeholder="Optional, e.g. Copilot swag bundle"
-                />
-              </label>
-
-              <div className={`roulette-card ${isAnimating ? 'live' : ''}`}>
-                <span className="roulette-label">{isAnimating ? 'Live draw in progress' : 'Winner reveal'}</span>
-                <strong>{winnerHeadline}</strong>
-                <p>
-                  {currentWinner
-                    ? `${currentWinner.organization ?? 'GitHub Copilot Dev Days winner'}`
-                    : 'Start the draw to animate the reveal and lock in the next winner.'}
-                </p>
+            </header>
+            <ul className="rules-checklist">
+              <li>Publish complete event-specific rules and make them easy to access.</li>
+              <li>Confirm eligibility limits, excluded participants, and geography.</li>
+              <li>Confirm required disclosures for prizes, sponsors, and taxes.</li>
+              <li>Review privacy obligations for entrant data collection and storage.</li>
+              <li>Check local laws and regulations for giveaways, sweepstakes, or contests.</li>
+            </ul>
+            <p className="muted-copy">
+              This project provides tooling and template text only. It is not legal advice.
+            </p>
+          </aside>
+        </section>
+      ) : (
+        <section className="content-grid">
+          <article className="panel" id="entry">
+            <header className="panel-header">
+              <div>
+                <span className="eyebrow">{isAdminRoute ? 'Host console' : 'Attendee entry'}</span>
+                <h2>{isAdminRoute ? 'Run the Dev Days giveaway draw' : 'Join the giveaway'}</h2>
               </div>
+            </header>
 
-              <div className="admin-actions">
-                <button
-                  className="primary-button"
-                  type="button"
-                  onClick={() => void handleDrawWinner()}
-                  disabled={(!isSupabaseConfigured && !isLocalFileMode) || isAnimating || adminLoading || summary.eligibleCount === 0}
-                >
-                  {isAnimating ? 'Drawing...' : 'Pick a winner'}
-                </button>
-                <button className="secondary-button" type="button" onClick={() => void loadDashboard()}>
-                  {adminLoading ? 'Refreshing...' : 'Refresh dashboard'}
-                </button>
+            {!isAdminRoute ? (
+              <form className="entry-form" onSubmit={handleSubmit}>
                 {isLocalFileMode && (
+                  <p className="form-message idle">
+                    Local CSV mode is active. New attendees are added in memory and synced to disk during local dev.
+                  </p>
+                )}
+                <label>
+                  Full name
+                  <input
+                    type="text"
+                    value={formValues.name}
+                    onChange={(event) => updateFormValue('name', event.target.value)}
+                    placeholder="Ada Lovelace"
+                    required
+                  />
+                </label>
+                <label>
+                  Team or company
+                  <input
+                    type="text"
+                    value={formValues.organization}
+                    onChange={(event) => updateFormValue('organization', event.target.value)}
+                    placeholder="Optional"
+                  />
+                </label>
+                <label>
+                  Work email
+                  <input
+                    type="email"
+                    value={formValues.email}
+                    onChange={(event) => updateFormValue('email', event.target.value)}
+                    placeholder="Optional"
+                  />
+                </label>
+                <button className="primary-button" type="submit" disabled={submitDisabled}>
+                  {isSubmitting ? 'Submitting...' : isLocalFileMode ? 'Add attendee locally' : 'Join giveaway'}
+                </button>
+                <p className={`form-message ${submitState.type}`}>{submitState.message}</p>
+              </form>
+            ) : adminLocked ? (
+              <form className="entry-form" onSubmit={handleUnlock}>
+                <label>
+                  Admin password
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(event) => setAdminPassword(event.target.value)}
+                    placeholder="Enter host password"
+                    required={!isLocalDevCsvMode}
+                  />
+                </label>
+                <button className="primary-button" type="submit">
+                  Unlock console
+                </button>
+                <p className={`form-message ${adminGateState.type}`}>{adminGateState.message}</p>
+                <p className="muted-copy">{unlockHint}</p>
+              </form>
+            ) : (
+              <div className="admin-panel">
+                <div className="stat-grid">
+                  <div className="stat-card">
+                    <span className="stat-label">Entries</span>
+                    <strong>{summary.totalEntries}</strong>
+                  </div>
+                  <div className="stat-card">
+                    <span className="stat-label">Eligible</span>
+                    <strong>{summary.eligibleCount}</strong>
+                  </div>
+                  <div className="stat-card">
+                    <span className="stat-label">Winners</span>
+                    <strong>{summary.winnersCount}</strong>
+                  </div>
+                </div>
+
+                <label className="prize-field">
+                  Prize or swag drop
+                  <input
+                    type="text"
+                    value={prizeLabel}
+                    onChange={(event) => setPrizeLabel(event.target.value)}
+                    placeholder="Optional, e.g. Copilot swag bundle"
+                  />
+                </label>
+
+                <div className={`roulette-card ${isAnimating ? 'live' : ''}`}>
+                  <span className="roulette-label">{isAnimating ? 'Live draw in progress' : 'Winner reveal'}</span>
+                  <strong>{winnerHeadline}</strong>
+                  <p>
+                    {currentWinner
+                      ? `${currentWinner.organization ?? 'GitHub Copilot Dev Days winner'}`
+                      : 'Start the giveaway draw to animate the reveal and lock in the next winner.'}
+                  </p>
+                </div>
+
+                <div className="admin-actions">
+                  <button
+                    className="primary-button"
+                    type="button"
+                    onClick={() => void handleDrawWinner()}
+                    disabled={(!isSupabaseConfigured && !isLocalFileMode) || isAnimating || adminLoading || summary.eligibleCount === 0}
+                  >
+                    {isAnimating ? 'Drawing...' : 'Pick a winner'}
+                  </button>
+                  <button className="secondary-button" type="button" onClick={() => void loadDashboard()}>
+                    {adminLoading ? 'Refreshing...' : 'Refresh dashboard'}
+                  </button>
+                  {isLocalFileMode && (
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      onClick={handleExportLocalEntries}
+                      disabled={localEntries.length === 0}
+                    >
+                      Export attendee CSV
+                    </button>
+                  )}
+                </div>
+
+                <div className="entry-manager">
+                  <label className="prize-field" htmlFor="entry-selector">
+                    Manage entries
+                    <select
+                      id="entry-selector"
+                      className="entry-select"
+                      value={selectedEntryId}
+                      onChange={(event) => setSelectedEntryId(event.target.value)}
+                      disabled={visibleAdminEntries.length === 0 || isRemovingEntry}
+                    >
+                      {visibleAdminEntries.length === 0 ? (
+                        <option value="">No entries available</option>
+                      ) : (
+                        visibleAdminEntries.map((entry) => (
+                          <option key={entry.id} value={entry.id}>
+                            {describeEntry(entry)}
+                            {entry.wonAt ? ' (winner)' : ''}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  </label>
                   <button
                     className="secondary-button"
                     type="button"
-                    onClick={handleExportLocalEntries}
-                    disabled={localEntries.length === 0}
+                    onClick={() => void handleRemoveEntry()}
+                    disabled={visibleAdminEntries.length === 0 || !selectedAdminEntry || isRemovingEntry}
                   >
-                    Export attendee CSV
+                    {isRemovingEntry ? 'Removing...' : 'Remove selected entry'}
                   </button>
-                )}
+                  <p className={`form-message ${entryAdminState.type}`}>{entryAdminState.message}</p>
+                </div>
+
+                {drawError && <p className="form-message error">{drawError}</p>}
               </div>
-
-              <div className="entry-manager">
-                <label className="prize-field" htmlFor="entry-selector">
-                  Manage entries
-                  <select
-                    id="entry-selector"
-                    className="entry-select"
-                    value={selectedEntryId}
-                    onChange={(event) => setSelectedEntryId(event.target.value)}
-                    disabled={visibleAdminEntries.length === 0 || isRemovingEntry}
-                  >
-                    {visibleAdminEntries.length === 0 ? (
-                      <option value="">No entries available</option>
-                    ) : (
-                      visibleAdminEntries.map((entry) => (
-                        <option key={entry.id} value={entry.id}>
-                          {describeEntry(entry)}
-                          {entry.wonAt ? ' (winner)' : ''}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </label>
-                <button
-                  className="secondary-button"
-                  type="button"
-                  onClick={() => void handleRemoveEntry()}
-                  disabled={visibleAdminEntries.length === 0 || !selectedAdminEntry || isRemovingEntry}
-                >
-                  {isRemovingEntry ? 'Removing...' : 'Remove selected entry'}
-                </button>
-                <p className={`form-message ${entryAdminState.type}`}>{entryAdminState.message}</p>
-              </div>
-
-              {drawError && <p className="form-message error">{drawError}</p>}
-            </div>
-          )}
-        </article>
-
-        <aside className="panel winners-panel">
-          <header className="panel-header">
-            <div>
-              <span className="eyebrow">Recent results</span>
-              <h2>Dev Days winners</h2>
-            </div>
-          </header>
-          <ul className="winner-list">
-            {winners.length === 0 ? (
-              <li className="winner-empty">No winners yet. The first GitHub Copilot Dev Days draw will show up here.</li>
-            ) : (
-              winners.map((winner) => (
-                <li key={winner.id} className="winner-item">
-                  <div>
-                    <strong>{isAdminRoute ? winner.displayName : formatPublicWinnerName(winner.displayName)}</strong>
-                    <p>{winner.organization ?? 'GitHub Copilot Dev Days attendee'}</p>
-                  </div>
-                  <div className="winner-meta">
-                    {winner.prizeLabel && <span>{winner.prizeLabel}</span>}
-                    <time dateTime={winner.wonAt}>{new Date(winner.wonAt).toLocaleString()}</time>
-                  </div>
-                </li>
-              ))
             )}
-          </ul>
-        </aside>
-      </section>
+          </article>
+
+          <aside className="panel winners-panel">
+            <header className="panel-header">
+              <div>
+                <span className="eyebrow">Recent results</span>
+                <h2>Giveaway winners</h2>
+              </div>
+            </header>
+            <ul className="winner-list">
+              {winners.length === 0 ? (
+                <li className="winner-empty">No winners yet. The first GitHub Copilot Dev Days giveaway draw will show up here.</li>
+              ) : (
+                winners.map((winner) => (
+                  <li key={winner.id} className="winner-item">
+                    <div>
+                      <strong>{isAdminRoute ? winner.displayName : formatPublicWinnerName(winner.displayName)}</strong>
+                      <p>{winner.organization ?? 'GitHub Copilot Dev Days giveaway attendee'}</p>
+                    </div>
+                    <div className="winner-meta">
+                      {winner.prizeLabel && <span>{winner.prizeLabel}</span>}
+                      <time dateTime={winner.wonAt}>{new Date(winner.wonAt).toLocaleString()}</time>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+          </aside>
+        </section>
+      )}
 
       <footer className="site-footer">
-        <a className="repo-link" href={env.repoUrl} target="_blank" rel="noreferrer">
-          View the GitHub repo
-        </a>
+        <div className="footer-links">
+          <a className="footer-link" href={RULES_ROUTE}>
+            Official rules
+          </a>
+          <a className="footer-link" href={env.repoUrl} target="_blank" rel="noreferrer">
+            View the GitHub repo
+          </a>
+        </div>
         <p className="site-credit">Built by James Montemagno &amp; GitHub Copilot CLI &amp; VS Code</p>
       </footer>
     </main>

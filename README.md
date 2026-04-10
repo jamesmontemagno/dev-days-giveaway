@@ -1,8 +1,8 @@
-# Dev Days Raffle
+# Dev Days Giveaway
 
-A static raffle site for event sign-ups and winner selection. Supports two modes:
+A static giveaway app for event sign-ups and winner selection. Supports two modes:
 
-- **Supabase mode** — deploy to GitHub Pages and persist raffle state in Supabase.
+- **Supabase mode** — deploy to GitHub Pages and persist giveaway state in Supabase.
 - **Local file mode** — run locally with a CSV or plain-text names file. No backend required.
 
 ## What it does
@@ -14,6 +14,7 @@ A static raffle site for event sign-ups and winner selection. Supports two modes
 - One-win-per-person enforcement
 - Admin entry management (review entrants and remove selected entries)
 - Manual dark/light theme toggle with saved preference
+- Internal official rules page at `#/rules` for public compliance guidance
 
 <img alt="image" src="https://github.com/user-attachments/assets/b1176503-b4a1-47b7-a60d-67f3ba76b46a" />
 
@@ -107,6 +108,18 @@ Apply the schema migrations in `supabase\migrations\` to your Supabase project. 
 The app only inserts entrant rows directly. Admin stats and draws go through the SQL functions.
 
 For the VS Code + MCP workflow, see `docs\supabase-deploy.md`.
+
+## Giveaway compliance and local laws
+
+Before running this publicly, publish event-specific official rules and make sure they comply with your local laws and policies.
+
+- Check giveaway, sweepstakes, and contest requirements in each applicable jurisdiction.
+- Include required eligibility, timing, prize value, sponsor, and winner-notification disclosures.
+- Add privacy/consent language for entrant data collection, storage, and retention.
+- Confirm venue, employer, and sponsor policies (including restrictions on employee participation).
+- Keep a visible link to the rules page (`#/rules`) from the public experience.
+
+This repository provides tooling and template text only. It is not legal advice.
 
 ## Security note
 
