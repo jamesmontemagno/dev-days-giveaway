@@ -587,17 +587,7 @@ function App() {
               ? 'Local submissions are auto-saved to disk in dev mode and included in exports.'
               : 'Outside local dev, local submissions are session-only and can still be exported manually.'}
           </p>
-          <div className="notice-actions">
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={handleExportLocalEntries}
-              disabled={localEntries.length === 0}
-            >
-              Export attendee CSV
-            </button>
-            <span className="muted-copy">{localEntries.length} attendees loaded</span>
-          </div>
+          <span className="muted-copy">{localEntries.length} attendees loaded</span>
           {localFileError && <span className="error"> {localFileError}</span>}
         </section>
       )}
@@ -718,6 +708,16 @@ function App() {
                 <button className="secondary-button" type="button" onClick={() => void loadDashboard()}>
                   {adminLoading ? 'Refreshing...' : 'Refresh dashboard'}
                 </button>
+                {isLocalFileMode && (
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    onClick={handleExportLocalEntries}
+                    disabled={localEntries.length === 0}
+                  >
+                    Export attendee CSV
+                  </button>
+                )}
               </div>
 
               <div className="entry-manager">

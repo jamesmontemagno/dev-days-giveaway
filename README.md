@@ -15,7 +15,7 @@ A static raffle site for event sign-ups and winner selection. Supports two modes
 - Admin entry management (review entrants and remove selected entries)
 - Manual dark/light theme toggle with saved preference
 
-<img width="1763" height="1784" alt="image" src="https://github.com/user-attachments/assets/b1176503-b4a1-47b7-a60d-67f3ba76b46a" />
+<img alt="image" src="https://github.com/user-attachments/assets/b1176503-b4a1-47b7-a60d-67f3ba76b46a" />
 
 ## Stack
 
