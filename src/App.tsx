@@ -234,11 +234,6 @@ function App() {
   )
 
   const loadDashboard = useCallback(async () => {
-    if (isLocalFileMode) {
-      setSummary(getLocalDashboardSummary(localEntries, winners))
-      return
-    }
-
     if (!isSupabaseConfigured) {
       return
     }
@@ -261,10 +256,18 @@ function App() {
     } finally {
       setAdminLoading(false)
     }
-  }, [localEntries, winners])
+  }, [])
 
   useEffect(() => {
-    if (!isSupabaseConfigured && !isLocalFileMode) {
+    if (!isLocalFileMode) {
+      return
+    }
+
+    setSummary(getLocalDashboardSummary(localEntries, winners))
+  }, [isLocalFileMode, localEntries, winners])
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
       return
     }
 
