@@ -369,7 +369,7 @@ function App() {
     }
 
     void document.exitFullscreen().catch(() => {
-      // Ignore browser fullscreen exit errors.
+      console.warn('Unable to exit fullscreen mode after leaving the winner selection screen.')
     })
   }, [adminLocked, isAdminRoute])
 
@@ -858,7 +858,7 @@ function App() {
                 </label>
 
                 <div className={`roulette-card ${isAnimating ? 'live' : ''}`}>
-                  {confettiPieces.length > 0 && currentWinner && !isAnimating && (
+                  {currentWinner && !isAnimating && (
                     <div key={confettiBurstCount} className="confetti-layer" aria-hidden="true">
                       {confettiPieces.map((piece) => (
                         <span
