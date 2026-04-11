@@ -618,7 +618,8 @@ function App() {
         await winnerScreenRef.current.requestFullscreen()
       }
     } catch {
-      setFullscreenError('Unable to change fullscreen mode in this browser.')
+      const action = document.fullscreenElement === winnerScreenRef.current ? 'exit' : 'enter'
+      setFullscreenError(`Unable to ${action} fullscreen mode in this browser.`)
     }
   }
 
@@ -873,7 +874,7 @@ function App() {
                             animationDelay: `${piece.delayMs}ms`,
                             animationDuration: `${piece.duration}ms`,
                             backgroundColor: piece.color,
-                            transform: `translateY(-18vh) rotate(${piece.rotationDeg}deg)`,
+                            transform: `rotate(${piece.rotationDeg}deg)`,
                           }}
                         />
                       ))}
