@@ -59,7 +59,7 @@ type ConfettiPiece = {
   borderRadiusPx: number
 }
 
-type WindowWithWebkitAudioContext = typeof window & {
+type WindowWithWebKitAudioContext = typeof window & {
   webkitAudioContext?: typeof AudioContext
 }
 
@@ -120,19 +120,22 @@ const CELEBRATION_AUDIO_CLOSE_DELAY_MS = 950
 const buildConfettiPieces = (seed: number): ConfettiPiece[] => {
   const colors = ['#7ee787', '#58a6ff', '#fbbf24', '#f472b6', '#34d399', '#f97316', '#f5f5f5']
 
-  return Array.from({ length: CONFETTI_PIECE_COUNT }, (_, index) => ({
-    id: seed * 1000 + index,
-    left: CONFETTI_HORIZONTAL_OFFSET_PERCENT + Math.random() * CONFETTI_HORIZONTAL_RANGE_PERCENT,
-    delayMs: Math.random() * 460,
-    duration: 1500 + Math.random() * 1400,
-    sizePx: 6 + Math.random() * 10,
-    rotationDeg: Math.random() * 360,
-    color: colors[index % colors.length]!,
-    borderRadiusPx:
-      Math.random() < CONFETTI_CIRCLE_PROBABILITY
+  return Array.from({ length: CONFETTI_PIECE_COUNT }, (_, index) => {
+    const sizePx = 6 + Math.random() * 10
+    const isCirclePiece = Math.random() < CONFETTI_CIRCLE_PROBABILITY
+    return {
+      id: seed * 1000 + index,
+      left: CONFETTI_HORIZONTAL_OFFSET_PERCENT + Math.random() * CONFETTI_HORIZONTAL_RANGE_PERCENT,
+      delayMs: Math.random() * 460,
+      duration: 1500 + Math.random() * 1400,
+      sizePx,
+      rotationDeg: Math.random() * 360,
+      color: colors[index % colors.length]!,
+      borderRadiusPx: isCirclePiece
         ? CONFETTI_CIRCLE_BORDER_RADIUS
-        : CONFETTI_MIN_RECT_RADIUS + Math.random() * CONFETTI_RECT_RADIUS_RANGE,
-  }))
+        : CONFETTI_MIN_RECT_RADIUS + Math.random() * Math.min(CONFETTI_RECT_RADIUS_RANGE, sizePx * 0.55),
+    }
+  })
 }
 
 const formatPublicWinnerName = (displayName: string) => {
@@ -182,7 +185,7 @@ function App() {
   const [confettiBurstCount, setConfettiBurstCount] = useState(0)
   const [isCelebrationSoundEnabled, setIsCelebrationSoundEnabled] = useState(() => {
     const savedPreference = window.localStorage.getItem(SOUND_STORAGE_KEY)
-    return savedPreference !== 'false'
+    return savedPreference === null || savedPreference === 'true'
   })
   const [isWinnerScreenFullscreen, setIsWinnerScreenFullscreen] = useState(false)
   const [fullscreenError, setFullscreenError] = useState('')
@@ -433,7 +436,7 @@ function App() {
       return
     }
 
-    const AudioContextCtor = window.AudioContext || (window as WindowWithWebkitAudioContext).webkitAudioContext
+    const AudioContextCtor = window.AudioContext || (window as WindowWithWebKitAudioContext).webkitAudioContext
     if (!AudioContextCtor) {
       return
     }
