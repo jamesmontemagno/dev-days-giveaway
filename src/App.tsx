@@ -52,7 +52,7 @@ type ConfettiPiece = {
   id: number
   left: number
   delayMs: number
-  durationMs: number
+  duration: number
   sizePx: number
   rotationDeg: number
   color: string
@@ -101,6 +101,8 @@ const buildAnimationSequence = (winnerName: string) => {
   return [...sequence, winnerName, winnerName]
 }
 
+const CONFETTI_HEIGHT_RATIO = 0.6
+
 const buildConfettiPieces = (seed: number): ConfettiPiece[] => {
   const colors = ['#7ee787', '#58a6ff', '#fbbf24', '#f472b6', '#34d399']
 
@@ -108,7 +110,7 @@ const buildConfettiPieces = (seed: number): ConfettiPiece[] => {
     id: seed * 1000 + index,
     left: Math.random() * 100,
     delayMs: Math.random() * 320,
-    durationMs: 1200 + Math.random() * 1100,
+    duration: 1200 + Math.random() * 1100,
     sizePx: 7 + Math.random() * 8,
     rotationDeg: Math.random() * 360,
     color: colors[index % colors.length]!,
@@ -867,9 +869,9 @@ function App() {
                           style={{
                             left: `${piece.left}%`,
                             width: `${piece.sizePx}px`,
-                            height: `${piece.sizePx * 0.6}px`,
+                            height: `${piece.sizePx * CONFETTI_HEIGHT_RATIO}px`,
                             animationDelay: `${piece.delayMs}ms`,
-                            animationDuration: `${piece.durationMs}ms`,
+                            animationDuration: `${piece.duration}ms`,
                             backgroundColor: piece.color,
                             transform: `translateY(-18vh) rotate(${piece.rotationDeg}deg)`,
                           }}
