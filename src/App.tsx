@@ -105,19 +105,29 @@ const buildAnimationSequence = (winnerName: string) => {
 
 const CONFETTI_PIECE_HEIGHT_RATIO = 0.6
 const CONFETTI_PIECE_COUNT = 220
+const CONFETTI_HORIZONTAL_START_PERCENT = -12
+const CONFETTI_HORIZONTAL_RANGE_PERCENT = 124
+const CONFETTI_CIRCLE_PROBABILITY = 0.68
+const CONFETTI_CIRCLE_RADIUS = 999
+const CONFETTI_MIN_RECT_RADIUS = 2
+const CONFETTI_RECT_RADIUS_RANGE = 6
+const CELEBRATION_AUDIO_CLOSE_DELAY_MS = 950
 
 const buildConfettiPieces = (seed: number): ConfettiPiece[] => {
   const colors = ['#7ee787', '#58a6ff', '#fbbf24', '#f472b6', '#34d399', '#f97316', '#f5f5f5']
 
   return Array.from({ length: CONFETTI_PIECE_COUNT }, (_, index) => ({
     id: seed * 1000 + index,
-    left: -12 + Math.random() * 124,
+    left: CONFETTI_HORIZONTAL_START_PERCENT + Math.random() * CONFETTI_HORIZONTAL_RANGE_PERCENT,
     delayMs: Math.random() * 460,
     duration: 1500 + Math.random() * 1400,
     sizePx: 6 + Math.random() * 10,
     rotationDeg: Math.random() * 360,
     color: colors[index % colors.length]!,
-    borderRadiusPx: Math.random() > 0.68 ? 999 : 2 + Math.random() * 6,
+    borderRadiusPx:
+      Math.random() > CONFETTI_CIRCLE_PROBABILITY
+        ? CONFETTI_CIRCLE_RADIUS
+        : CONFETTI_MIN_RECT_RADIUS + Math.random() * CONFETTI_RECT_RADIUS_RANGE,
   }))
 }
 
@@ -455,7 +465,7 @@ function App() {
 
     window.setTimeout(() => {
       void audioContext.close()
-    }, 950)
+    }, CELEBRATION_AUDIO_CLOSE_DELAY_MS)
   }, [isCelebrationSoundEnabled])
 
   const toggleTheme = () => {
