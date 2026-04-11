@@ -101,12 +101,13 @@ const buildAnimationSequence = (winnerName: string) => {
   return [...sequence, winnerName, winnerName]
 }
 
-const CONFETTI_HEIGHT_RATIO = 0.6
+const CONFETTI_PIECE_HEIGHT_RATIO = 0.6
+const CONFETTI_PIECE_COUNT = 72
 
 const buildConfettiPieces = (seed: number): ConfettiPiece[] => {
   const colors = ['#7ee787', '#58a6ff', '#fbbf24', '#f472b6', '#34d399']
 
-  return Array.from({ length: 72 }, (_, index) => ({
+  return Array.from({ length: CONFETTI_PIECE_COUNT }, (_, index) => ({
     id: seed * 1000 + index,
     left: Math.random() * 100,
     delayMs: Math.random() * 320,
@@ -610,15 +611,16 @@ function App() {
     }
 
     setFullscreenError('')
+    const wasFullscreen = document.fullscreenElement === winnerScreenRef.current
 
     try {
-      if (document.fullscreenElement === winnerScreenRef.current) {
+      if (wasFullscreen) {
         await document.exitFullscreen()
       } else {
         await winnerScreenRef.current.requestFullscreen()
       }
     } catch {
-      const action = document.fullscreenElement === winnerScreenRef.current ? 'exit' : 'enter'
+      const action = wasFullscreen ? 'exit' : 'enter'
       setFullscreenError(`Unable to ${action} fullscreen mode in this browser.`)
     }
   }
@@ -870,7 +872,7 @@ function App() {
                           style={{
                             left: `${piece.left}%`,
                             width: `${piece.sizePx}px`,
-                            height: `${piece.sizePx * CONFETTI_HEIGHT_RATIO}px`,
+                            height: `${piece.sizePx * CONFETTI_PIECE_HEIGHT_RATIO}px`,
                             animationDelay: `${piece.delayMs}ms`,
                             animationDuration: `${piece.duration}ms`,
                             backgroundColor: piece.color,
