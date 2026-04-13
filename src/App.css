@@ -294,6 +294,23 @@
   text-align: left;
 }
 
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 40;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10%;
+  opacity: 0;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.12, 0.78, 0.24, 1);
+  animation-fill-mode: forwards;
+}
+
 .roulette-card::after {
   content: '';
   position: absolute;
@@ -310,7 +327,7 @@
 .roulette-card p,
 .roulette-label {
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
 .roulette-card strong {
@@ -390,6 +407,23 @@
   text-align: left;
 }
 
+.winner-selection-screen:fullscreen {
+  width: 100%;
+  max-width: none;
+  min-height: 100svh;
+  margin: 0;
+  padding: 32px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at top, var(--bg-layer-1), transparent 30%),
+    radial-gradient(circle at right, var(--bg-layer-2), transparent 28%),
+    linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 55%, var(--bg-gradient-end) 100%);
+}
+
+.winner-selection-screen:fullscreen .panel {
+  min-height: calc(100svh - 64px);
+}
+
 .site-footer {
   display: flex;
   flex-wrap: wrap;
@@ -434,6 +468,38 @@
   50% {
     transform: scale(1.01);
   }
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, -20vh, 0) rotate(0deg);
+  }
+  42% {
+    opacity: 1;
+    transform: translate3d(2.4vw, 44vh, 0) rotate(340deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-1.6vw, 118vh, 0) rotate(700deg);
+  }
+}
+
+.celebration-sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--panel-strong);
+  color: var(--text-h);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.celebration-sound-toggle input {
+  margin: 0;
 }
 
 @media (max-width: 960px) {
